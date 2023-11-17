@@ -3,6 +3,7 @@ module github.com/khulnasoft-lab/harbor-scanner-tunnel
 go 1.21
 
 require (
+	github.com/caarlos0/env/v10 v10.0.0
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
