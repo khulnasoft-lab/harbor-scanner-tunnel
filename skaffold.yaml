@@ -1,0 +1,22 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: harbor-scanner-tunnel
+build:
+  local:
+    push: false # Use kind, minikube, Docker Desktop, Rancher Desktop, etc.
+    useDockerCLI: true
+  artifacts:
+    - image: khulnasoft-lab/harbor-scanner-tunnel
+      docker:
+        dockerfile: Dockerfile.dev
+deploy:
+  helm:
+    releases:
+      - name: my-harbor
+        chartPath: ./harbor-helm # remoteChart doesn't work for some reason
+        valuesFiles:
+          - ./harbor-helm/values.yaml
+        setValueTemplates:
+          tunnel.image.repository: "{{.IMAGE_REPO_khulnasoft_harbor_scanner_tunnel}}"
+          tunnel.image.tag: "{{.IMAGE_TAG_khulnasoft_harbor_scanner_tunnel}}"

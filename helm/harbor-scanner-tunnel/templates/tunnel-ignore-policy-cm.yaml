@@ -1,0 +1,11 @@
+{{- if (.Values.scanner.tunnel.ignorePolicy) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "harbor-scanner-tunnel.fullname" . }}-ignorepolicy
+  labels:
+{{ include "harbor-scanner-tunnel.labels" . | indent 4 }}
+data:
+  policy.rego: |
+    {{ .Values.scanner.tunnel.ignorePolicy | nindent 4 }}
+{{- end }}
