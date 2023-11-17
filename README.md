@@ -209,7 +209,7 @@ Configuration of the adapter is done via environment variables at startup.
 If you set the value of the `SCANNER_TUNNEL_SKIP_UPDATE` to `true`, make sure that you download the [Tunnel DB]
 and mount it in the `/home/scanner/.cache/tunnel/db/tunnel.db` path.
 
-### Error: failed to list releases: Get <https://api.github.com/repos/khulnasoft/tunnel-db/releases>: dial tcp: lookup api.github.com on 127.0.0.11:53: read udp 127.0.0.1:39070->127.0.0.11:53: i/o timeout
+### Error: failed to list releases: Get <https://api.github.com/repos/khulnasoft-lab/tunnel-db/releases>: dial tcp: lookup api.github.com on 127.0.0.11:53: read udp 127.0.0.1:39070->127.0.0.11:53: i/o timeout
 
 Most likely it's a Docker DNS server or network firewall configuration issue. Tunnel requires internet connection to
 periodically download vulnerability database from GitHub to show up-to-date risks.
@@ -229,7 +229,7 @@ services:
 Alternatively, configure Docker daemon to use the same DNS server as host operating system. See [DNS services][docker-dns]
 section in the Docker container networking documentation for more details.
 
-### Error: failed to list releases: GET <https://api.github.com/repos/khulnasoft/tunnel-db/releases>: 403 API rate limit exceeded
+### Error: failed to list releases: GET <https://api.github.com/repos/khulnasoft-lab/tunnel-db/releases>: 403 API rate limit exceeded
 
 Tunnel DB downloads from GitHub are subject to [rate limiting][gh-rate-limit]. Make sure that the Tunnel DB is mounted
 and cached in the `/home/scanner/.cache/tunnel/db/tunnel.db` path. If, for any reason, it's not enough you can set the
@@ -258,7 +258,7 @@ Learn about our open source work and portfolio [here](https://www.khulnasoft.com
 [Harbor]: https://github.com/goharbor/harbor
 [Harbor Helm chart]: https://github.com/goharbor/harbor-helm
 [Tunnel]: https://github.com/khulnasoft/tunnel
-[Tunnel DB]: https://github.com/khulnasoft/tunnel-db
+[Tunnel DB]: https://github.com/khulnasoft-lab/tunnel-db
 [harbor-pluggable-scanners]: https://github.com/goharbor/community/blob/master/proposals/pluggable-image-vulnerability-scanning_proposal.md
 [gh-rate-limit]: https://github.com/khulnasoft/tunnel#github-rate-limiting
 [docker-dns]: https://docs.docker.com/config/containers/container-networking/#dns-services
