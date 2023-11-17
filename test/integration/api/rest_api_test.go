@@ -106,7 +106,7 @@ func TestRestApi(t *testing.T) {
 				},
 				Scanner: harbor.Scanner{
 					Name:    "Tunnel",
-					Vendor:  "Aqua Security",
+					Vendor:  "Khulnasoft Security",
 					Version: "Unknown",
 				},
 				Severity: harbor.SevCritical,
@@ -148,7 +148,7 @@ func TestRestApi(t *testing.T) {
   },
   "scanner": {
     "name": "Tunnel",
-    "vendor": "Aqua Security",
+    "vendor": "Khulnasoft Security",
     "version": "Unknown"
   },
   "severity": "Critical",
@@ -190,7 +190,7 @@ func TestRestApi(t *testing.T) {
 		assert.JSONEq(t, `{
   "scanner": {
     "name": "Tunnel",
-    "vendor": "Aqua Security",
+    "vendor": "Khulnasoft Security",
     "version": "Unknown"
   },
   "capabilities": [
