@@ -114,7 +114,7 @@ func GetScannerMetadata() harbor.Scanner {
 	}
 	return harbor.Scanner{
 		Name:    "Tunnel",
-		Vendor:  "Aqua Security",
+		Vendor:  "Khulnasoft Security",
 		Version: version,
 	}
 }

@@ -15,7 +15,7 @@ COPY cmd/ ./cmd
 COPY pkg/ ./pkg
 RUN CGO_ENABLED=0 go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -o scanner-tunnel cmd/scanner-tunnel/main.go
 
-FROM khulnasoft/tunnel:${TUNNEL_VERSION}
+FROM aquasec/trivy:${TUNNEL_VERSION}
 
 ENV GOTRACEBACK=all
 

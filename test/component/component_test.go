@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	tunnelScanner = harbor.Scanner{Name: "Tunnel", Vendor: "Aqua Security", Version: "0.46.1"}
+	tunnelScanner = harbor.Scanner{Name: "Tunnel", Vendor: "Khulnasoft Security", Version: "0.46.1"}
 )
 
 const (

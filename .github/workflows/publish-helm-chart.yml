@@ -1,6 +1,6 @@
 ---
 # This is a manually triggered workflow to package and upload the Helm chart
-# from the specified Git revision to Aqua Security Helm repository at
+# from the specified Git revision to Khulnasoft Security Helm repository at
 # https://github.com/khulnasoft/helm-charts.
 name: Publish Helm Chart
 
@@ -61,5 +61,5 @@ jobs:
           destination_repo: '${{ env.GH_OWNER }}/${{ env.HELM_REP }}'
           destination_folder: '.'
           destination_branch: 'gh-pages'
-          user_email: aqua-bot@users.noreply.github.com
-          user_name: 'aqua-bot'
+          user_email: khulnasoft-bot@users.noreply.github.com
+          user_name: 'khulnasoft-bot'

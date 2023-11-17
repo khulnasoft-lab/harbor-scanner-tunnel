@@ -125,7 +125,7 @@ func TestTransformer_Transform(t *testing.T) {
 		},
 		Scanner: harbor.Scanner{
 			Name:    "Tunnel",
-			Vendor:  "Aqua Security",
+			Vendor:  "Khulnasoft Security",
 			Version: "Unknown",
 		},
 		Severity: harbor.SevCritical,
