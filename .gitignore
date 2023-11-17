@@ -1,0 +1,15 @@
+.idea/
+.vscode/
+
+scanner-tunnel
+dist/
+
+coverage.txt
+
+# Directory Cache Files
+.DS_Store
+thumbs.db
+
+bin
+
+.vagrant/
