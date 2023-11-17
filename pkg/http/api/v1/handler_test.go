@@ -307,7 +307,7 @@ func TestRequestHandler_GetScanReport(t *testing.T) {
 						},
 						Scanner: harbor.Scanner{
 							Name:    "Tunnel",
-							Vendor:  "Aqua Security",
+							Vendor:  "Khulnasoft Security",
 							Version: "0.1.6",
 						},
 						Severity: harbor.SevCritical,
@@ -340,7 +340,7 @@ func TestRequestHandler_GetScanReport(t *testing.T) {
   },
   "scanner": {
     "name": "Tunnel",
-    "vendor": "Aqua Security",
+    "vendor": "Khulnasoft Security",
     "version": "0.1.6"
   },
   "severity": "Critical",
@@ -460,7 +460,7 @@ func TestRequestHandler_GetMetadata(t *testing.T) {
 			expectedResp: `{
    "scanner":{
       "name":"Tunnel",
-      "vendor":"Aqua Security",
+      "vendor":"Khulnasoft Security",
       "version":"Unknown"
    },
    "capabilities":[
@@ -514,7 +514,7 @@ func TestRequestHandler_GetMetadata(t *testing.T) {
 			expectedResp: `{
    "scanner":{
       "name":"Tunnel",
-      "vendor":"Aqua Security",
+      "vendor":"Khulnasoft Security",
       "version":"Unknown"
    },
    "capabilities":[
@@ -563,7 +563,7 @@ func TestRequestHandler_GetMetadata(t *testing.T) {
 			expectedResp: `{
    "scanner":{
       "name":"Tunnel",
-      "vendor":"Aqua Security",
+      "vendor":"Khulnasoft Security",
       "version":"Unknown"
    },
    "capabilities":[
