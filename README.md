@@ -2,7 +2,7 @@
 [![GitHub Build Actions][build-action-img]][actions]
 [![Go Report Card][report-card-img]][report-card]
 [![License][license-img]][license]
-![Docker Pulls / Aqua][docker-pulls-aqua]
+![Docker Pulls / Khulnasoft][docker-pulls-khulnasoft]
 ![Docker Pulls / Harbor][docker-pulls-harbor]
 
 # Harbor Scanner Adapter for Tunnel
@@ -137,11 +137,11 @@ designated as the default scanner.
 1. Install the `harbor-scanner-tunnel` chart:
 
    ```
-   helm repo add aqua https://khulnasoft.github.io/helm-charts
+   helm repo add khulnasoft https://khulnasoft.github.io/helm-charts
    ```
 
    ```
-   helm install harbor-scanner-tunnel aqua/harbor-scanner-tunnel \
+   helm install harbor-scanner-tunnel khulnasoft/harbor-scanner-tunnel \
      --namespace harbor --create-namespace
    ```
 
@@ -241,7 +241,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 requests.
 
 ---
-Harbor Scanner Adapter for Tunnel is an [Aqua Security](https://khulnasoft.com) open source project.  
+Harbor Scanner Adapter for Tunnel is an [Khulnasoft Security](https://khulnasoft.com) open source project.  
 Learn about our open source work and portfolio [here](https://www.khulnasoft.com/products/open-source-projects/).
 
 [release-img]: https://img.shields.io/github/release/khulnasoft-lab/harbor-scanner-tunnel.svg?logo=github
@@ -250,7 +250,7 @@ Learn about our open source work and portfolio [here](https://www.khulnasoft.com
 [actions]: https://github.com/khulnasoft-lab/harbor-scanner-tunnel/actions
 [report-card-img]: https://goreportcard.com/badge/github.com/khulnasoft-lab/harbor-scanner-tunnel
 [report-card]: https://goreportcard.com/report/github.com/khulnasoft-lab/harbor-scanner-tunnel
-[docker-pulls-aqua]: https://img.shields.io/docker/pulls/khulnasoft/harbor-scanner-tunnel?logo=docker&label=docker%20pulls%20%2F%20khulnasoft
+[docker-pulls-khulnasoft]: https://img.shields.io/docker/pulls/khulnasoft/harbor-scanner-tunnel?logo=docker&label=docker%20pulls%20%2F%20khulnasoft
 [docker-pulls-harbor]: https://img.shields.io/docker/pulls/goharbor/tunnel-adapter-photon?logo=docker&label=docker%20pulls%20%2F%20goharbor
 [license-img]: https://img.shields.io/github/license/khulnasoft-lab/harbor-scanner-tunnel.svg
 [license]: https://github.com/khulnasoft-lab/harbor-scanner-tunnel/blob/main/LICENSE
