@@ -1,0 +1,44 @@
+---
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - id: scanner-tunnel
+    main: ./cmd/scanner-tunnel/main.go
+    binary: scanner-tunnel
+    env:
+      - CGO_ENABLED=0
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      386: i386
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .FullCommit }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs'
+      - '^test'
+      - '^release'
+dockers:
+  - image_templates:
+      - "docker.io/khulnasoft/harbor-scanner-tunnel:{{ .Version }}"
+      - "public.ecr.aws/khulnasoft-lab/harbor-scanner-tunnel:{{ .Version }}"
+    ids:
+      - scanner-tunnel
+    build_flag_templates:
+      - "--label=org.label-schema.schema-version=1.0"
+      - "--label=org.label-schema.name={{ .ProjectName }}"
+      - "--label=org.label-schema.description=Harbor scanner adapter for Tunnel"
+      - "--label=org.label-schema.vendor=Aqua Security"
+      - "--label=org.label-schema.version={{ .Version }}"
+      - "--label=org.label-schema.build-date={{ .Date }}"
+      - "--label=org.label-schema.vcs=https://github.com/khulnasoft-lab/harbor-scanner-tunnel"
+      - "--label=org.label-schema.vcs-ref={{ .FullCommit }}"

@@ -1,0 +1,227 @@
+package tunnel
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
+	"os/exec"
+	"strings"
+
+	"github.com/khulnasoft-lab/harbor-scanner-tunnel/pkg/etc"
+	"github.com/khulnasoft-lab/harbor-scanner-tunnel/pkg/ext"
+)
+
+const (
+	tunnelCmd = "tunnel"
+)
+
+type ImageRef struct {
+	Name     string
+	Auth     RegistryAuth
+	Insecure bool
+}
+
+// RegistryAuth wraps registry credentials.
+type RegistryAuth interface {
+}
+
+type NoAuth struct {
+}
+
+type BasicAuth struct {
+	Username string
+	Password string
+}
+
+type BearerAuth struct {
+	Token string
+}
+
+type Wrapper interface {
+	Scan(imageRef ImageRef) ([]Vulnerability, error)
+	GetVersion() (VersionInfo, error)
+}
+
+type wrapper struct {
+	config     etc.Tunnel
+	ambassador ext.Ambassador
+}
+
+func NewWrapper(config etc.Tunnel, ambassador ext.Ambassador) Wrapper {
+	return &wrapper{
+		config:     config,
+		ambassador: ambassador,
+	}
+}
+
+func (w *wrapper) Scan(imageRef ImageRef) ([]Vulnerability, error) {
+	logger := slog.With(slog.String("image_ref", imageRef.Name))
+	logger.Debug("Started scanning")
+
+	reportFile, err := w.ambassador.TempFile(w.config.ReportsDir, "scan_report_*.json")
+	if err != nil {
+		return nil, err
+	}
+	logger.Debug("Saving scan report to tmp file", slog.String("path", reportFile.Name()))
+	defer func() {
+		logger.Debug("Removing scan report tmp file", slog.String("path", reportFile.Name()))
+		if err = w.ambassador.Remove(reportFile.Name()); err != nil {
+			logger.Warn("Error while removing scan report tmp file", slog.String("err", err.Error()))
+		}
+	}()
+
+	cmd, err := w.prepareScanCmd(imageRef, reportFile.Name())
+	if err != nil {
+		return nil, err
+	}
+
+	logger.Debug("Exec command with args", slog.String("path", cmd.Path),
+		slog.String("args", strings.Join(cmd.Args, " ")))
+
+	stdout, err := w.ambassador.RunCmd(cmd)
+	if err != nil {
+		logger.Error("Running tunnel failed",
+			slog.String("exit_code", fmt.Sprintf("%d", cmd.ProcessState.ExitCode())),
+			slog.String("std_out", string(stdout)),
+		)
+		return nil, fmt.Errorf("running tunnel: %v: %v", err, string(stdout))
+	}
+
+	logger.Debug("Running tunnel finished",
+		slog.String("exit_code", fmt.Sprintf("%d", cmd.ProcessState.ExitCode())),
+		slog.String("std_out", string(stdout)),
+	)
+
+	return w.parseVulnerabilities(reportFile)
+}
+
+func (w *wrapper) parseVulnerabilities(reportFile io.Reader) ([]Vulnerability, error) {
+	var scanReport ScanReport
+	if err := json.NewDecoder(reportFile).Decode(&scanReport); err != nil {
+		return nil, fmt.Errorf("decoding scan report from file: %w", err)
+	}
+
+	if scanReport.SchemaVersion != SchemaVersion {
+		return nil, fmt.Errorf("unsupported schema %d, expected %d", scanReport.SchemaVersion, SchemaVersion)
+	}
+
+	var vulnerabilities []Vulnerability
+	for _, scanResult := range scanReport.Results {
+		slog.Debug("Parsing vulnerabilities", slog.String("target", scanResult.Target))
+		vulnerabilities = append(vulnerabilities, scanResult.Vulnerabilities...)
+	}
+
+	return vulnerabilities, nil
+}
+
+func (w *wrapper) prepareScanCmd(imageRef ImageRef, outputFile string) (*exec.Cmd, error) {
+	args := []string{
+		"--no-progress",
+		"--severity", w.config.Severity,
+		"--vuln-type", w.config.VulnType,
+		"--scanners", w.config.SecurityChecks,
+		"--format", "json",
+		"--output", outputFile,
+		imageRef.Name,
+	}
+
+	if w.config.IgnoreUnfixed {
+		args = append([]string{"--ignore-unfixed"}, args...)
+	}
+
+	if w.config.SkipUpdate {
+		args = append([]string{"--skip-db-update"}, args...)
+	}
+
+	if w.config.OfflineScan {
+		args = append([]string{"--offline-scan"}, args...)
+	}
+
+	if w.config.IgnorePolicy != "" {
+		args = append([]string{"--ignore-policy", w.config.IgnorePolicy}, args...)
+	}
+
+	name, err := w.ambassador.LookPath(tunnelCmd)
+	if err != nil {
+		return nil, err
+	}
+
+	globalArgs := []string{"--cache-dir", w.config.CacheDir}
+
+	if w.config.DebugMode {
+		globalArgs = append(globalArgs, "--debug")
+	}
+	globalArgs = append(globalArgs, "image")
+
+	args = append(globalArgs, args...)
+
+	cmd := exec.Command(name, args...)
+
+	cmd.Env = w.ambassador.Environ()
+
+	cmd.Env = append(cmd.Env, fmt.Sprintf("TUNNEL_TIMEOUT=%s", w.config.Timeout.String()))
+
+	switch a := imageRef.Auth.(type) {
+	case NoAuth:
+	case BasicAuth:
+		cmd.Env = append(cmd.Env,
+			fmt.Sprintf("TUNNEL_USERNAME=%s", a.Username),
+			fmt.Sprintf("TUNNEL_PASSWORD=%s", a.Password))
+	case BearerAuth:
+		cmd.Env = append(cmd.Env,
+			fmt.Sprintf("TUNNEL_REGISTRY_TOKEN=%s", a.Token))
+	default:
+		return nil, fmt.Errorf("invalid auth type %T", a)
+	}
+
+	if imageRef.Insecure {
+		cmd.Env = append(cmd.Env, "TUNNEL_NON_SSL=true")
+	}
+
+	if strings.TrimSpace(w.config.GitHubToken) != "" {
+		cmd.Env = append(cmd.Env, fmt.Sprintf("GITHUB_TOKEN=%s", w.config.GitHubToken))
+	}
+
+	if w.config.Insecure {
+		cmd.Env = append(cmd.Env, "TUNNEL_INSECURE=true")
+	}
+
+	return cmd, nil
+}
+
+func (w *wrapper) GetVersion() (VersionInfo, error) {
+	cmd, err := w.prepareVersionCmd()
+	if err != nil {
+		return VersionInfo{}, fmt.Errorf("failed preparing tunnel version command: %w", err)
+	}
+
+	versionOutput, err := w.ambassador.RunCmd(cmd)
+	if err != nil {
+		return VersionInfo{}, fmt.Errorf("failed running tunnel version command: %w: %v", err, string(versionOutput))
+	}
+
+	var vi VersionInfo
+	err = json.Unmarshal(versionOutput, &vi)
+	if err != nil {
+		return VersionInfo{}, fmt.Errorf("failed parsing tunnel version output: %w", err)
+	}
+
+	return vi, nil
+}
+
+func (w *wrapper) prepareVersionCmd() (*exec.Cmd, error) {
+	args := []string{
+		"--cache-dir", w.config.CacheDir,
+		"version",
+		"--format", "json",
+	}
+
+	name, err := w.ambassador.LookPath(tunnelCmd)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := exec.Command(name, args...)
+	return cmd, nil
+}

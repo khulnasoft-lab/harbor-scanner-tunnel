@@ -1,0 +1,33 @@
+# That's the only place where you're supposed to specify version of Tunnel.
+ARG TUNNEL_VERSION=0.46.0
+ARG SKAFFOLD_GO_GCFLAGS
+
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /go/src/github.com/khulnasoft-lab/harbor-scanner-tunnel
+
+# Download Go dependencies first
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the entire project and build it.
+COPY cmd/ ./cmd
+COPY pkg/ ./pkg
+RUN CGO_ENABLED=0 go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -o scanner-tunnel cmd/scanner-tunnel/main.go
+
+FROM khulnasoft/tunnel:${TUNNEL_VERSION}
+
+ENV GOTRACEBACK=all
+
+# An ARG declared before a FROM is outside of a build stage, so it can't be used in any
+# instruction after a FROM. To use the default value of an ARG declared before the first
+# FROM use an ARG instruction without a value inside of a build stage.
+ARG TUNNEL_VERSION
+
+RUN adduser -u 10000 -D -g '' scanner scanner
+
+COPY --from=builder /go/src/github.com/khulnasoft-lab/harbor-scanner-tunnel/scanner-tunnel /home/scanner/bin/scanner-tunnel
+
+ENV TUNNEL_VERSION=${TUNNEL_VERSION}
+
+ENTRYPOINT ["/home/scanner/bin/scanner-tunnel"]
