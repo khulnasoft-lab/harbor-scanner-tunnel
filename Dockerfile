@@ -1,7 +1,7 @@
 # That's the only place where you're supposed to specify version of Tunnel.
 ARG TUNNEL_VERSION=0.46.1
 
-FROM khulnasoft/tunnel:${TUNNEL_VERSION}
+FROM aquasec/trivy:${TUNNEL_VERSION}
 
 # An ARG declared before a FROM is outside of a build stage, so it can't be used in any
 # instruction after a FROM. To use the default value of an ARG declared before the first
