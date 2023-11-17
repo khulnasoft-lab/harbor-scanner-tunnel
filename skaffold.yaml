@@ -7,7 +7,7 @@ build:
     push: false # Use kind, minikube, Docker Desktop, Rancher Desktop, etc.
     useDockerCLI: true
   artifacts:
-    - image: khulnasoft-lab/harbor-scanner-tunnel
+    - image: khulnasoft/harbor-scanner-tunnel
       docker:
         dockerfile: Dockerfile.dev
 deploy:
