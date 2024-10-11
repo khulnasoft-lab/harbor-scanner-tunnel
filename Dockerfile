@@ -1,5 +1,5 @@
 # That's the only place where you're supposed to specify version of Tunnel.
-ARG TUNNEL_VERSION=0.46.1
+ARG TUNNEL_VERSION=0.56.2
 
 FROM aquasec/trivy:${TUNNEL_VERSION}
 
